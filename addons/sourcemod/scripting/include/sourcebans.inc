@@ -3,7 +3,7 @@
 #endif
 #define _sourcebans_included
 
-public SharedPlugin:__pl_sourcebans = 
+public SharedPlugin __pl_sourcebans = 
 {
 	name = "SourceBans",
 	file = "sourcebans.smx",
@@ -15,7 +15,7 @@ public SharedPlugin:__pl_sourcebans =
 };
 
 #if !defined REQUIRE_PLUGIN
-public __pl_sourcebans_SetNTVOptional()
+public void __pl_sourcebans_SetNTVOptional()
 {
 	MarkNativeAsOptional("SBBanPlayer");
 	MarkNativeAsOptional("SBCheckBans");
@@ -31,4 +31,4 @@ public __pl_sourcebans_SetNTVOptional()
  * @param reason	The reason to ban the player from the server
  * @noreturn		
  *********************************************************/
-native SBBanPlayer(client, target, time, String:reason[]);
+native void SBBanPlayer(int client, int target, int time, const char[] reason);
