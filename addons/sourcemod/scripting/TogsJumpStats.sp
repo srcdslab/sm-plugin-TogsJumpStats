@@ -847,7 +847,7 @@ void GetClientStats(int client, char[] sStats, int iLength)
 public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float a_fVel[3], float a_fAngles[3], int &weapon)
 {
 	if(!IsClientInGame(client))
-		return Plugin_Handled;
+		return Plugin_Continue;
 	
 	if(IsPlayerAlive(client))
 	{
