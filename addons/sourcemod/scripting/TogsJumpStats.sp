@@ -1,5 +1,6 @@
 #pragma semicolon 1
-#define PLUGIN_VERSION "1.11.0"	//changelog at bottom
+#pragma newdecls required
+
 #define TAG "{green}[TOGs Jump Stats]{default}"
 
 #include <sourcemod>
@@ -7,17 +8,23 @@
 #include <sdktools>
 #include <autoexecconfig>
 #include <sourcebanspp>
+#include <discordWebhookAPI>
 
-#pragma newdecls required
+#undef REQUIRE_PLUGIN
+#tryinclude <sourcebanschecker>
+#define REQUIRE_PLUGIN
 
 public Plugin myinfo = 
 {
 	name = "TOGs Jump Stats",
 	author = "That One Guy (based on code from Inami)",
 	description = "Player bhop method analysis.",
-	version = PLUGIN_VERSION,
+	version = "1.12", // Changelog at bottom
 	url = "http://www.togcoding.com"
 }
+
+// Api
+Handle g_hOnClientDetected;
 
 ConVar g_hEnableLogs = null;
 ConVar g_hReqMultRoundsHyp = null;
@@ -39,6 +46,9 @@ ConVar g_hBanHacks = null;
 ConVar g_hBanPat = null;
 ConVar g_hBanHyp = null;
 ConVar g_hBanFPSMax = null;
+ConVar g_cCountBots = null;
+char sStats[1993];
+ConVar g_cvWebhook;
 
 float ga_fAvgJumps[MAXPLAYERS + 1] = {1.0, ...};
 float ga_fAvgSpeed[MAXPLAYERS + 1] = {250.0, ...};
@@ -53,6 +63,7 @@ bool ga_bFlagHypLastRound[MAXPLAYERS + 1];
 bool ga_bFlagHypTwoRoundsAgo[MAXPLAYERS + 1];
 bool ga_bSurfCheck[MAXPLAYERS + 1];
 bool ga_bNotificationsPaused[MAXPLAYERS + 1] = {false, ...};
+bool g_Plugin_SourceBans = false;
 
 char g_sHypPath[PLATFORM_MAX_PATH];
 char g_sHacksPath[PLATFORM_MAX_PATH];
@@ -71,12 +82,17 @@ int gaa_iLastJumps[MAXPLAYERS + 1][30];
 int g_iTickCount = 1;
 bool g_bDisableAdminMsgs = false;
 
+public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
+{
+	RegPluginLibrary("TogsJumpStats");
+	return APLRes_Success;
+}
+
 public void OnPluginStart()
 {
 	LoadTranslations("common.phrases");
 
 	AutoExecConfig_SetFile("togsjumpstats");
-	AutoExecConfig_CreateConVar("tjs_version", PLUGIN_VERSION, "TOGs Jump Stats Version", FCVAR_NOTIFY|FCVAR_DONTRECORD);
 
 	g_hCooldown = AutoExecConfig_CreateConVar("tjs_gen_cooldown", "60", "Cooldown time between chat notifications to admins for any given clients that is flagged.", FCVAR_NONE, true, 0.0);
 	
@@ -118,6 +134,10 @@ public void OnPluginStart()
 	
 	g_hBanFPSMax = AutoExecConfig_CreateConVar("tjs_ban_fpsmax", "-1", "Ban length in minutes (0 = perm, -1 = disabled) for FPS Max abuse detection.", FCVAR_NONE, true, -1.0);
 
+	g_cCountBots = AutoExecConfig_CreateConVar("tjs_count_bots", "1", "Should we count bots as players ?[0 = No, 1 = Yes]", FCVAR_NONE, true, 0.0, true, 1.0);
+
+	g_cvWebhook = AutoExecConfig_CreateConVar("tjs_webhook", "", "The webhook URL of your Discord channel.", FCVAR_NONE);
+
 	HookEvent("player_jump", Event_PlayerJump, EventHookMode_Post);
 	
 	BuildPath(Path_SM, g_sHypPath, sizeof(g_sHypPath), "logs/togsjumpstats/hyperscrollers.log");
@@ -134,6 +154,9 @@ public void OnPluginStart()
 	AutoExecConfig_CleanFile();
 	
 	HookEvent("round_start", Event_RoundStart, EventHookMode_Pre);
+
+	// Api
+	g_hOnClientDetected = CreateGlobalForward("Tjs_OnClientDetected", ET_Ignore, Param_Cell, Param_String, Param_String);
 	
 	for(int i = 1; i <= MaxClients; i++)	//late load handler
 	{
@@ -149,6 +172,23 @@ public void OnPluginStart()
 	{
 		CreateDirectory(sBuffer, 777);
 	}
+}
+
+public void OnAllPluginsLoaded()
+{
+	g_Plugin_SourceBans = LibraryExists("sourcebans++");
+}
+
+public void OnLibraryAdded(const char[] sName)
+{
+	if (strcmp(sName, "sourcebans++", false) == 0)
+		g_Plugin_SourceBans = true;
+}
+
+public void OnLibraryRemoved(const char[] sName)
+{
+	if (strcmp(sName, "sourcebans++", false) == 0)
+		g_Plugin_SourceBans = false;
 }
 
 public void OnCVarChange(ConVar hCVar, const char[] sOldValue, const char[] sNewValue)
@@ -398,7 +438,7 @@ public void Event_PlayerJump(Handle hEvent, const char[] sName, bool bDontBroadc
 		{
 			if(!g_bDisableAdminMsgs)
 			{
-				NotifyAdmins(client, "Hacks");
+				NotifyAdmins(client, "Bhop Hacks");
 			}
 		}
 		
@@ -537,6 +577,8 @@ void NotifyAdmins(int client, char[] sFlagType)
 			}
 		}
 	}
+
+	Forward_OnDetected(client, sFlagType, sStats);
 }
 
 
@@ -548,6 +590,124 @@ public Action UnPause_TimerMonitor(Handle hTimer, any iUserID)
 		ga_bNotificationsPaused[client] = false;
 	}
 	return Plugin_Continue;
+}
+
+void Forward_OnDetected(int client, const char[] reason, const char[] stats)
+{
+	Call_StartForward(g_hOnClientDetected);
+	Call_PushCell(client);
+	Call_PushString(reason);
+	Call_PushString(stats);
+	Call_Finish();
+
+	Discord_Notify(client, reason, sStats);
+}
+
+void Discord_Notify(int client, const char[] reason, const char[] stats)
+{
+	char sPluginVersion[256];
+	GetPluginInfo(INVALID_HANDLE, PlInfo_Version, sPluginVersion, sizeof(sPluginVersion));
+
+	char sAuth[32];
+	GetClientAuthId(client, AuthId_Steam2, sAuth, sizeof(sAuth), true);
+
+	char sPlayer[256];
+	if (g_Plugin_SourceBans)
+	{
+		int iClientBans = 0;
+		int iClientComms = 0;
+
+#if defined _sourcebanschecker_included
+		iClientBans = SBPP_CheckerGetClientsBans(client);
+		iClientComms = SBPP_CheckerGetClientsComms(client);
+#endif
+
+		Format(sPlayer, sizeof(sPlayer), "%N (%d bans - %d comms) [%s] has been detected for %s.", client, iClientBans, iClientComms, sAuth, reason);
+	}
+	else
+	{
+		Format(sPlayer, sizeof(sPlayer), "%N [%s] has been detected for %s.", client, sAuth, reason);		
+	}
+
+	char sFlagged[32];
+	Format(sFlagged, sizeof(sFlagged), "Flagged: %i round(s) in a row", ga_bFlagged[client]);
+
+	Format(sStats, sizeof(sStats), "%s", stats);
+
+	char sTime[64];
+	int iTime = GetTime();
+	FormatTime(sTime, sizeof(sTime), "Date : %d/%m/%Y @ %H:%M:%S", iTime);
+
+	char sCount[32];
+	int iMaxPlayers = MaxClients;
+	int iConnected = GetClientCountEx(g_cCountBots.BoolValue);
+	Format(sCount, sizeof(sCount), "Players : %d/%d", iConnected, iMaxPlayers);
+
+	char currentMap[PLATFORM_MAX_PATH];
+	GetCurrentMap(currentMap, sizeof(currentMap));
+
+	char sMessage[4096], sMessagePt1[4096], sMessagePt2[4096];
+
+	Format(sMessage, sizeof(sMessage), "```%s \nCurrent map : %s \n%s \n%s \nV.%s \n\n%s \n%s```", sPlayer, currentMap, sTime, sCount, sPluginVersion, sFlagged, sStats);
+	ReplaceString(sMessage, sizeof(sMessage), "\\n", "\n");
+	char szWebhookURL[1000];
+	g_cvWebhook.GetString(szWebhookURL, sizeof szWebhookURL);
+
+	if(strlen(sMessage) >= 4000) // We cancel it. Too many characters.
+		return;
+	
+	if(strlen(sMessage) < 2000) // Discord character limit is 2000
+	{
+		//Discord_SendMessage(sWebhook, sMessage);
+
+    	Webhook webhook = new Webhook(sMessage);
+    	webhook.Execute(szWebhookURL, OnWebHookExecuted);
+    	delete webhook;
+	}
+	if(strlen(sMessage) >= 2000)// If reach 2000 characters content will be truncated, so we split msgs..
+	{
+		Format(sMessagePt1, sizeof(sMessagePt1), "```%s \nCurrent map : %s \n%s \n%s \nV.%s```", sPlayer, currentMap, sTime, sCount, sPluginVersion);
+		ReplaceString(sMessagePt1, sizeof(sMessagePt1), "\\n", "\n");
+		
+		Webhook webhookPt1 = new Webhook(sMessage);
+		webhookPt1.Execute(szWebhookURL, OnWebHookExecuted);
+		delete webhookPt1;
+		Format(sMessagePt2, sizeof(sMessagePt2), "```%s \n%s```", sFlagged, sStats);
+		ReplaceString(sMessagePt2, sizeof(sMessagePt2), "\\n", "\n");
+		
+		Webhook webhookPt2 = new Webhook(sMessage);
+		webhookPt2.Execute(szWebhookURL, OnWebHookExecuted);
+		delete webhookPt2;
+
+		//Discord_SendMessage(sWebhook, sMessagePt1);
+		//Discord_SendMessage(sWebhook, sMessagePt2);
+	}
+}
+
+public void OnWebHookExecuted(HTTPResponse response, DataPack pack)
+{
+    if (response.Status != HTTPStatus_OK)
+    {
+        LogError("Failed to send TogsJumpStats webhook");
+    }
+}
+
+stock int GetClientCountEx(bool countBots)
+{
+	int iRealClients = 0;
+	int iFakeClients = 0;
+
+	for(int player = 1; player <= MaxClients; player++)
+	{
+		if(IsClientConnected(player))
+		{
+			if(IsFakeClient(player))
+				iFakeClients++;
+			else
+				iRealClients++;
+		}
+	}
+	return countBots ? iFakeClients + iRealClients : iRealClients;
 }
 
 public void OnClientDisconnect(int client)
@@ -602,8 +762,8 @@ void LogFlag(int client, const char[] sType, bool bAlreadyFlagged = false)
 {
 	if(IsValidClient(client))
 	{
-		char sStats[256], sLogMsg[300];
-		GetClientStats(client, sStats, sizeof(sStats));
+		char sLogMsg[300];
+		GetClientStatsForLogs(client, sStats, sizeof(sStats));
 		Format(sLogMsg, sizeof(sLogMsg), "%s %s%s", sStats, sType, (bAlreadyFlagged ? " (already flagged this map)" : ""));
 
 		if(StrEqual(sType, "hacks", false))
@@ -755,15 +915,10 @@ void ResetJumps(int target)
 
 void PerformStats(int client, int target)
 {
-	char sStats[300];
-	GetClientStats(target, sStats, sizeof(sStats));
 	if(IsValidClient(client))
 	{
+		GetClientStats(target, sStats, sizeof(sStats));
 		PrintToConsole(client, "Flagged: %i || %s", ga_bFlagged[target], sStats);
-	}
-	else
-	{
-		PrintToServer("Flagged: %i || %s", ga_bFlagged[target], sStats);
 	}
 }
 
@@ -796,8 +951,7 @@ void SortedStats(int client, int[] a_iTargets, int iCount)
 		if(IsValidClient(target) && (a_fPerfs[j][0] != -1.0))
 		{
 			//save to another array to display them in order, since the get stats takes time and therefor they can sometimes come out of order slightly
-			char sStats[300];
-			GetClientStats(target, sStats, sizeof(sStats));
+			GetClientStatsForLogs(target, sStats, sizeof(sStats));
 			Format(sMsg, sizeof(sMsg), "Flagged: %d || %s", ga_bFlagged[target], sStats);
 			strcopy(a_sStats[k], 300, sMsg);
 			k++;
@@ -831,6 +985,18 @@ public int SortPerfs(int[] x, int[] y, const int[][] aArray, Handle hHndl)
 } 
 
 void GetClientStats(int client, char[] sStats, int iLength)
+{
+	Format(sStats, iLength, "Perf: %4.1f%% \nAvg: %-4.1f / %5.1f \nLast Stats: ",
+		ga_fAvgPerfJumps[client]*100, ga_fAvgJumps[client], ga_fAvgSpeed[client]);
+	Format(sStats, iLength, "%s%i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i", sStats, 
+		gaa_iLastJumps[client][0], gaa_iLastJumps[client][1], gaa_iLastJumps[client][2], gaa_iLastJumps[client][3], gaa_iLastJumps[client][4], gaa_iLastJumps[client][5],
+		gaa_iLastJumps[client][6], gaa_iLastJumps[client][7], gaa_iLastJumps[client][8], gaa_iLastJumps[client][9], gaa_iLastJumps[client][10], gaa_iLastJumps[client][11],
+		gaa_iLastJumps[client][12], gaa_iLastJumps[client][13], gaa_iLastJumps[client][14], gaa_iLastJumps[client][15], gaa_iLastJumps[client][16], gaa_iLastJumps[client][17],
+		gaa_iLastJumps[client][18], gaa_iLastJumps[client][19], gaa_iLastJumps[client][20], gaa_iLastJumps[client][21], gaa_iLastJumps[client][22], gaa_iLastJumps[client][23],
+		gaa_iLastJumps[client][24], gaa_iLastJumps[client][25], gaa_iLastJumps[client][26], gaa_iLastJumps[client][27], gaa_iLastJumps[client][28], gaa_iLastJumps[client][29]);
+}
+
+void GetClientStatsForLogs(int client, char[] sStats, int iLength)
 {
 	char sMap[128];
 	GetCurrentMap(sMap, sizeof(sMap));
@@ -1035,13 +1201,16 @@ CHANGE LOG
 	* Check Permissions before the read rest of the code
 	* Remove hardcoded color and replace it with multicolors
 	* Fix OnPlayerRunCmd return error if client isn't ingame
+1.12.0
+	* Split GetClientStats function for Logs usage OR players/Api usage
+	* Add Plugin Library Registration as "TogsJumpStats"
+	* Add Discord support
+	* Add SBPP Checker
+	* Count bots cvar
+	* Plugin include
 */
 /*
 To Do:
 	* Add cfg option to disable hyperscroll detection...maybe if jumps is set to 0?
 	* Code in natives to ignore a client. This would allow other plugins to ignore them, give them bhop hacks, later turn off hacks, then re-enable this plugin checking them.
-	
-need to add checks into togsjumpstats to see if sourcebans is loaded
-RegPluginLibrary("sourcebans");
-BanClient(
 */
