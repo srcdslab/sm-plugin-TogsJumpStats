@@ -1018,7 +1018,7 @@ public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float a_fVe
 	if(IsPlayerAlive(client))
 	{
 		static bool bHoldingJump[MAXPLAYERS + 1];
-		static bLastOnGround[MAXPLAYERS + 1];
+		static bool bLastOnGround[MAXPLAYERS + 1];
 		if(buttons & IN_JUMP)
 		{
 			if(!bHoldingJump[client])
