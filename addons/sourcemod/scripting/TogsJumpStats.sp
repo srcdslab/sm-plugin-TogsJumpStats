@@ -156,7 +156,7 @@ public void OnPluginStart()
 	HookEvent("round_start", Event_RoundStart, EventHookMode_Pre);
 
 	// Api
-	g_hOnClientDetected = CreateGlobalForward("Tjs_OnClientDetected", ET_Ignore, Param_Cell, Param_String, Param_String);
+	g_hOnClientDetected = CreateGlobalForward("TJS_OnClientDetected", ET_Ignore, Param_Cell, Param_String, Param_String);
 	
 	for(int i = 1; i <= MaxClients; i++)	//late load handler
 	{

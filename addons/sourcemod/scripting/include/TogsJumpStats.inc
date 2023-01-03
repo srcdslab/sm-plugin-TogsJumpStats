@@ -14,4 +14,4 @@ public SharedPlugin __pl_TogsJumpStats =
 #endif
 #define _TogsJumpStats_Included
 
-forward void Tjs_OnClientDetected(int client, char[] sReason, char[] sStats);
+forward void TJS_OnClientDetected(int client, char[] sReason, char[] sStats);
