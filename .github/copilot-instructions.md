@@ -10,23 +10,22 @@ This repository contains **TOGs Jump Stats**, a SourceMod plugin for Source engi
 
 ### Core Technologies
 - **Language**: SourcePawn
-- **Platform**: SourceMod 1.11+ (configured for 1.11.0-git6917)
-- **Build Tool**: SourceKnight (modern SourceMod build system)
-- **Compiler**: SourcePawn Compiler (spcomp) via SourceKnight
+- **Platform**: SourceMod 1.12.x
+- **Build Tool**: Native GitHub Actions (see `.github/workflows/ci.yml`)
+- **Compiler**: SourcePawn Compiler (spcomp) via `rumblefrog/setup-sp`
 
 ### Dependencies
-Automatically managed through `sourceknight.yaml`:
-- `sourcemod` (1.11.0-git6917) - Core SourceMod framework
+Cloned and copied into `addons/sourcemod/scripting/include` by the CI workflow:
+- `sourcemod` (1.12.x) - Core SourceMod framework
 - `multicolors` - Chat color formatting
 - `discordwebapi` - Discord webhook integration
 - `sourcebans-pp` - Banning system integration
-- `autoexecconfig` - Configuration management
+- `autoexecconfig` - Configuration management (vendored include)
 
 ### Build Process
 ```bash
-# SourceKnight handles dependency resolution and compilation
-# No manual setup required - dependencies auto-fetched
-sourceknight build  # Compiles to .sourceknight/package/
+# CI (.github/workflows/ci.yml) clones dependencies and runs spcomp directly:
+spcomp -i include -o ../plugins/TogsJumpStats.smx TogsJumpStats.sp
 ```
 
 ## Code Architecture & Patterns
@@ -122,11 +121,11 @@ public void MyCallback(Database db, DBResultSet results, const char[] error, any
 
 ### 1. Building & Testing
 ```bash
-# Build plugin (auto-fetches dependencies)
-cd /path/to/repository
-sourceknight build
+# Build is handled by GitHub Actions on push/PR (.github/workflows/ci.yml)
+# Locally, fetch include dependencies and compile with spcomp:
+spcomp -i addons/sourcemod/scripting/include -o TogsJumpStats.smx addons/sourcemod/scripting/TogsJumpStats.sp
 
-# Output location: .sourceknight/package/addons/sourcemod/plugins/TogsJumpStats.smx
+# CI output artifact: addons/sourcemod/plugins/TogsJumpStats.smx
 ```
 
 ### 2. Configuration Testing
@@ -235,9 +234,9 @@ ConVar cvar = AutoExecConfig_CreateConVar(
 ## Common Issues & Solutions
 
 ### Build Issues
-- **Missing dependencies**: SourceKnight auto-resolves, check `sourceknight.yaml`
-- **Compilation errors**: Verify SourceMod version compatibility
-- **Include errors**: Ensure all dependencies in `sourceknight.yaml`
+- **Missing dependencies**: Check the "Install dependencies" step in `.github/workflows/ci.yml`
+- **Compilation errors**: Verify SourceMod version compatibility (1.12.x)
+- **Include errors**: Ensure all dependencies are cloned/copied in the CI workflow
 
 ### Runtime Issues
 - **High CPU usage**: Review `OnPlayerRunCmd` efficiency
@@ -291,7 +290,6 @@ addons/sourcemod/scripting/
 ├── include/
 │   ├── TogsJumpStats.inc    # Plugin API
 │   └── autoexecconfig.inc   # Config management
-sourceknight.yaml            # Build configuration & dependencies
 ```
 
 This plugin is performance-critical and security-focused. Always prioritize accuracy in detection algorithms and efficiency in hot code paths.
