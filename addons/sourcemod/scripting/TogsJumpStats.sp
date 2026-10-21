@@ -19,12 +19,12 @@ public Plugin myinfo =
 	name = "TOGs Jump Stats",
 	author = "That One Guy (based on code from Inami)",
 	description = "Player bhop method analysis.",
-	version = "1.12", // Changelog at bottom
+	version = "1.13", // Changelog at bottom
 	url = "http://www.togcoding.com"
 }
 
 // Api
-Handle g_hOnClientDetected;
+GlobalForward g_hOnClientDetected;
 
 ConVar g_hEnableLogs = null;
 ConVar g_hReqMultRoundsHyp = null;
@@ -156,7 +156,7 @@ public void OnPluginStart()
 	HookEvent("round_start", Event_RoundStart, EventHookMode_Pre);
 
 	// Api
-	g_hOnClientDetected = CreateGlobalForward("TJS_OnClientDetected", ET_Ignore, Param_Cell, Param_String, Param_String);
+	g_hOnClientDetected = new GlobalForward("TJS_OnClientDetected", ET_Ignore, Param_Cell, Param_String, Param_String);
 	
 	for(int i = 1; i <= MaxClients; i++)	//late load handler
 	{
@@ -207,7 +207,7 @@ public void OnCVarChange(ConVar hCVar, const char[] sOldValue, const char[] sNew
 	}
 }
 
-public Action Event_RoundStart(Handle hEvent, const char[] sName, bool bDontBroadcast)
+public Action Event_RoundStart(Event hEvent, const char[] sName, bool bDontBroadcast)
 {
 	if(g_hReqMultRoundsHyp.IntValue)
 	{
@@ -304,9 +304,9 @@ public Action TimerCB_CheckForFlags(Handle hTimer, any iUserID)
 	return Plugin_Handled;
 }
 
-public void Event_PlayerJump(Handle hEvent, const char[] sName, bool bDontBroadcast)
+public void Event_PlayerJump(Event hEvent, const char[] sName, bool bDontBroadcast)
 {
-	int client = GetClientOfUserId(GetEventInt(hEvent, "userid"));
+	int client = GetClientOfUserId(hEvent.GetInt("userid"));
 	
 	if(!IsValidClient(client))
 	{
@@ -606,7 +606,7 @@ void Forward_OnDetected(int client, const char[] reason, const char[] stats)
 void Discord_Notify(int client, const char[] reason, const char[] stats)
 {
 	char sPluginVersion[256];
-	GetPluginInfo(INVALID_HANDLE, PlInfo_Version, sPluginVersion, sizeof(sPluginVersion));
+	GetPluginInfo(null, PlInfo_Version, sPluginVersion, sizeof(sPluginVersion));
 
 	char sAuth[32];
 	GetClientAuthId(client, AuthId_Steam2, sAuth, sizeof(sAuth), true);
