@@ -1,0 +1,163 @@
+"Phrases"
+{
+	"Players Flagged Single"
+	{
+		"#format"	"{1:d}"
+		"en"		"{olive}{1} {red}player has been flagged for jump stats! Please check everyone's stats!"
+		"fr"		"{olive}{1} {red}joueur a été signalé par les stats de saut ! Vérifiez les stats de tout le monde !"
+		"ru"		"{olive}{1} {red}игрок отмечен по статистике прыжков! Проверьте статистику всех игроков!"
+		"es"		"{olive}{1} {red}jugador ha sido marcado por sus estadísticas de salto. ¡Revisen las estadísticas de todos!"
+		"de"		"{olive}{1} {red}Spieler wurde durch die Sprungstatistik markiert! Bitte prüft die Statistiken aller Spieler!"
+		"pt"		"{olive}{1} {red}jogador foi marcado pelas estatísticas de pulo! Verifiquem as estatísticas de todos!"
+		"chi"		"{olive}{1} {red}名玩家因跳跃统计被标记！请检查所有人的统计数据！"
+	}
+
+	"Players Flagged Multiple"
+	{
+		"#format"	"{1:d}"
+		"en"		"{olive}{1} {red}players have been flagged for jump stats! Please check everyone's stats!"
+		"fr"		"{olive}{1} {red}joueurs ont été signalés par les stats de saut ! Vérifiez les stats de tout le monde !"
+		"ru"		"{red}Игроков, отмеченных по статистике прыжков: {olive}{1}{red}! Проверьте статистику всех игроков!"
+		"es"		"{olive}{1} {red}jugadores han sido marcados por sus estadísticas de salto. ¡Revisen las estadísticas de todos!"
+		"de"		"{olive}{1} {red}Spieler wurden durch die Sprungstatistik markiert! Bitte prüft die Statistiken aller Spieler!"
+		"pt"		"{olive}{1} {red}jogadores foram marcados pelas estatísticas de pulo! Verifiquem as estatísticas de todos!"
+		"chi"		"{olive}{1} {red}名玩家因跳跃统计被标记！请检查所有人的统计数据！"
+	}
+
+	"Admin Notices Status Disabled"
+	{
+		"en"		"Admin chat notifications for flagged players are currently {red}disabled{default}!"
+		"fr"		"Les notifications admin dans le chat pour les joueurs signalés sont actuellement {red}désactivées{default} !"
+		"ru"		"Уведомления админов в чате об отмеченных игроках сейчас {red}отключены{default}!"
+		"es"		"¡Las notificaciones de chat para admins sobre jugadores marcados están {red}desactivadas{default}!"
+		"de"		"Admin-Chatbenachrichtigungen für markierte Spieler sind derzeit {red}deaktiviert{default}!"
+		"pt"		"As notificações de chat para admins sobre jogadores marcados estão {red}desativadas{default}!"
+		"chi"		"被标记玩家的管理员聊天通知当前已{red}禁用{default}！"
+	}
+
+	"Admin Notices Status Enabled"
+	{
+		"en"		"Admin chat notifications for flagged players are currently {green}enabled{default}."
+		"fr"		"Les notifications admin dans le chat pour les joueurs signalés sont actuellement {green}activées{default}."
+		"ru"		"Уведомления админов в чате об отмеченных игроках сейчас {green}включены{default}."
+		"es"		"Las notificaciones de chat para admins sobre jugadores marcados están {green}activadas{default}."
+		"de"		"Admin-Chatbenachrichtigungen für markierte Spieler sind derzeit {green}aktiviert{default}."
+		"pt"		"As notificações de chat para admins sobre jogadores marcados estão {green}ativadas{default}."
+		"chi"		"被标记玩家的管理员聊天通知当前已{green}启用{default}。"
+	}
+
+	"Admin Notices Disabled By"
+	{
+		"#format"	"{1:N}"
+		"en"		"{olive}{1} {default}has {red}disabled {default}admin notices for bhop cheats until the map changes!"
+		"fr"		"{olive}{1} {default}a {red}désactivé {default}les notifications admin de triche au bhop jusqu'au changement de map !"
+		"ru"		"{olive}{1} {red}отключил {default}уведомления админов о читах на бхоп до смены карты!"
+		"es"		"{olive}{1} {default}ha {red}desactivado {default}los avisos para admins sobre trampas de bhop hasta el cambio de mapa."
+		"de"		"{olive}{1} {default}hat die Admin-Hinweise zu Bhop-Cheats bis zum Mapwechsel {red}deaktiviert{default}!"
+		"pt"		"{olive}{1} {red}desativou {default}os avisos para admins sobre trapaças de bhop até a troca de mapa!"
+		"chi"		"{olive}{1} {red}已禁用{default}关于连跳作弊的管理员通知，直到地图更换！"
+	}
+
+	"Admin Notices Disabled By Console"
+	{
+		"en"		"{olive}Console {default}has {red}disabled {default}admin notices for bhop cheats until the map changes!"
+		"fr"		"{olive}La console {default}a {red}désactivé {default}les notifications admin de triche au bhop jusqu'au changement de map !"
+		"ru"		"{olive}Консоль {red}отключила {default}уведомления админов о читах на бхоп до смены карты!"
+		"es"		"{olive}La consola {default}ha {red}desactivado {default}los avisos para admins sobre trampas de bhop hasta el cambio de mapa."
+		"de"		"{olive}Die Konsole {default}hat die Admin-Hinweise zu Bhop-Cheats bis zum Mapwechsel {red}deaktiviert{default}!"
+		"pt"		"{olive}O console {red}desativou {default}os avisos para admins sobre trapaças de bhop até a troca de mapa!"
+		"chi"		"{olive}控制台{red}已禁用{default}关于连跳作弊的管理员通知，直到地图更换！"
+	}
+
+	"Admin Notices Enabled By"
+	{
+		"#format"	"{1:N}"
+		"en"		"{olive}{1} {default}has {green}re-enabled {default}admin notices for bhop cheats!"
+		"fr"		"{olive}{1} {default}a {green}réactivé {default}les notifications admin de triche au bhop !"
+		"ru"		"{olive}{1} {green}снова включил {default}уведомления админов о читах на бхоп!"
+		"es"		"{olive}{1} {default}ha {green}reactivado {default}los avisos para admins sobre trampas de bhop."
+		"de"		"{olive}{1} {default}hat die Admin-Hinweise zu Bhop-Cheats {green}wieder aktiviert{default}!"
+		"pt"		"{olive}{1} {green}reativou {default}os avisos para admins sobre trapaças de bhop!"
+		"chi"		"{olive}{1} {green}已重新启用{default}关于连跳作弊的管理员通知！"
+	}
+
+	"Admin Notices Enabled By Console"
+	{
+		"en"		"{olive}Console {default}has {green}re-enabled {default}admin notices for bhop cheats!"
+		"fr"		"{olive}La console {default}a {green}réactivé {default}les notifications admin de triche au bhop !"
+		"ru"		"{olive}Консоль {green}снова включила {default}уведомления админов о читах на бхоп!"
+		"es"		"{olive}La consola {default}ha {green}reactivado {default}los avisos para admins sobre trampas de bhop."
+		"de"		"{olive}Die Konsole {default}hat die Admin-Hinweise zu Bhop-Cheats {green}wieder aktiviert{default}!"
+		"pt"		"{olive}O console {green}reativou {default}os avisos para admins sobre trapaças de bhop!"
+		"chi"		"{olive}控制台{green}已重新启用{default}关于连跳作弊的管理员通知！"
+	}
+
+	"Flagged Notice"
+	{
+		"#format"	"{1:N},{2:s}"
+		"en"		"{olive}'{1}' {default}has been {red}flagged for '{2}'! {default}Please check their jump stats!"
+		"fr"		"{olive}'{1}' {default}a été {red}signalé pour '{2}' ! {default}Veuillez vérifier ses stats de saut !"
+		"ru"		"{olive}'{1}' {red}отмечен за '{2}'! {default}Проверьте его статистику прыжков!"
+		"es"		"{olive}'{1}' {default}ha sido {red}marcado por '{2}'. {default}¡Revisa sus estadísticas de salto!"
+		"de"		"{olive}'{1}' {default}wurde {red}wegen '{2}' markiert! {default}Bitte prüfe seine Sprungstatistik!"
+		"pt"		"{olive}'{1}' {default}foi {red}marcado por '{2}'! {default}Verifique as estatísticas de pulo dele!"
+		"chi"		"{olive}'{1}' {default}已因 '{2}' {red}被标记！{default}请检查其跳跃统计！"
+	}
+
+	"Flagged FPS Max Notice"
+	{
+		"#format"	"{1:N},{2:s},{3:.1f}"
+		"en"		"{olive}'{1}' {default}has been {red}flagged for having fps_max set to {2}! {default}Please enforce a minimum value of {green}{3}."
+		"fr"		"{olive}'{1}' {default}a été {red}signalé pour avoir fps_max réglé sur {2} ! {default}Veuillez imposer une valeur minimale de {green}{3}."
+		"ru"		"{olive}'{1}' {red}отмечен за fps_max, равный {2}! {default}Требуйте минимальное значение {green}{3}."
+		"es"		"{olive}'{1}' {default}ha sido {red}marcado por tener fps_max en {2}. {default}Exige un valor mínimo de {green}{3}."
+		"de"		"{olive}'{1}' {default}wurde {red}markiert, weil fps_max auf {2} steht! {default}Bitte setze einen Mindestwert von {green}{3} {default}durch."
+		"pt"		"{olive}'{1}' {default}foi {red}marcado por ter fps_max definido em {2}! {default}Exija um valor mínimo de {green}{3}."
+		"chi"		"{olive}'{1}' {default}因 fps_max 设置为 {2} 而{red}被标记！{default}请强制要求最小值为 {green}{3}{default}。"
+	}
+
+	"Jumps Usage"
+	{
+		"en"		"Usage: sm_jumps <#userid|name|@all>"
+		"fr"		"Utilisation : sm_jumps <#userid|name|@all>"
+		"ru"		"Использование: sm_jumps <#userid|name|@all>"
+		"es"		"Uso: sm_jumps <#userid|name|@all>"
+		"de"		"Verwendung: sm_jumps <#userid|name|@all>"
+		"pt"		"Uso: sm_jumps <#userid|name|@all>"
+		"chi"		"用法：sm_jumps <#userid|name|@all>"
+	}
+
+	"Jumps Target Not Found"
+	{
+		"en"		"Not found or invalid parameter."
+		"fr"		"Introuvable ou paramètre invalide."
+		"ru"		"Не найдено или неверный параметр."
+		"es"		"No encontrado o parámetro inválido."
+		"de"		"Nicht gefunden oder ungültiger Parameter."
+		"pt"		"Não encontrado ou parâmetro inválido."
+		"chi"		"未找到或参数无效。"
+	}
+
+	"Reset Jumps Usage"
+	{
+		"en"		"Usage: sm_resetjumps <#userid|name|@all>"
+		"fr"		"Utilisation : sm_resetjumps <#userid|name|@all>"
+		"ru"		"Использование: sm_resetjumps <#userid|name|@all>"
+		"es"		"Uso: sm_resetjumps <#userid|name|@all>"
+		"de"		"Verwendung: sm_resetjumps <#userid|name|@all>"
+		"pt"		"Uso: sm_resetjumps <#userid|name|@all>"
+		"chi"		"用法：sm_resetjumps <#userid|name|@all>"
+	}
+
+	"Reset Jumps Activity"
+	{
+		"#format"	"{1:s}"
+		"en"		"{default}Reset jump stats of {olive}{1}{default}."
+		"fr"		"{default}A réinitialisé les stats de saut de {olive}{1}{default}."
+		"ru"		"{default}Сбросил статистику прыжков: {olive}{1}{default}."
+		"es"		"{default}Reinició las estadísticas de salto de {olive}{1}{default}."
+		"de"		"{default}Hat die Sprungstatistik von {olive}{1} {default}zurückgesetzt."
+		"pt"		"{default}Redefiniu as estatísticas de pulo de {olive}{1}{default}."
+		"chi"		"{default}重置了 {olive}{1} {default}的跳跃统计。"
+	}
+}
