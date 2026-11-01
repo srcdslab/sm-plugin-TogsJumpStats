@@ -151,7 +151,7 @@
 
 	"Reset Jumps Activity"
 	{
-		"#format"	"{1:s}"
+		"#format"	"{1:t}"
 		"en"		"{default}Reset jump stats of {olive}{1}{default}."
 		"fr"		"{default}A réinitialisé les stats de saut de {olive}{1}{default}."
 		"ru"		"{default}Сбросил статистику прыжков: {olive}{1}{default}."
