@@ -19,7 +19,7 @@ public Plugin myinfo =
 	name = "TOGs Jump Stats",
 	author = "That One Guy (based on code from Inami)",
 	description = "Player bhop method analysis.",
-	version = "1.13", // Changelog at bottom
+	version = "1.13.1", // Changelog at bottom
 	url = "http://www.togcoding.com"
 }
 
@@ -91,6 +91,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 public void OnPluginStart()
 {
 	LoadTranslations("common.phrases");
+	LoadTranslations("TogsJumpStats.phrases");
 
 	AutoExecConfig_SetFile("togsjumpstats");
 
@@ -297,7 +298,7 @@ public Action TimerCB_CheckForFlags(Handle hTimer, any iUserID)
 		}
 		if(iCount)
 		{
-			CPrintToChat(client, "%s {olive}%i {red}players have been flagged for jump stats! Please check everyone's stats!", TAG, iCount);
+			CPrintToChat(client, "%s %t", TAG, iCount == 1 ? "Players Flagged Single" : "Players Flagged Multiple", iCount);
 		}
 	}
 
@@ -454,7 +455,7 @@ public Action Command_StopAdminMsgs(int client, int iArgs)
 {
 	if(!HasFlags(client, g_sAdminFlag) && IsValidClient(client))
 	{
-		CReplyToCommand(client, "%s You do not have access to this command!", TAG);
+		CReplyToCommand(client, "%s %t", TAG, "No Access");
 		return Plugin_Handled;
 	}
 	
@@ -467,17 +468,17 @@ public Action Command_MsgStatus(int client, int iArgs)
 {
 	if(!HasFlags(client, g_sAdminFlag) && IsValidClient(client))
 	{
-		CReplyToCommand(client, "%s You do not have access to this command!", TAG);
+		CReplyToCommand(client, "%s %t", TAG, "No Access");
 		return Plugin_Handled;
 	}
 	
 	if(g_bDisableAdminMsgs)
 	{
-		CReplyToCommand(client, "%s Admin chat notifications for flagged players is currently {red}disabled{default}!", TAG);
+		CReplyToCommand(client, "%s %t", TAG, "Admin Notices Status Disabled");
 	}
 	else
 	{
-		CReplyToCommand(client, "%s Admin chat notifications for flagged players is currently {green}enabled{default}.", TAG);
+		CReplyToCommand(client, "%s %t", TAG, "Admin Notices Status Enabled");
 	}
 	
 	return Plugin_Handled;
@@ -491,9 +492,9 @@ void StopMsgs(any client)
 		if(IsClientInGame(i) && CheckCommandAccess(i, "sm_admin", ADMFLAG_GENERIC, true) && !IsFakeClient(i))
 		{
 			if(i > 0)
-				CPrintToChat(i, "%s {olive}%N {default}has {red}disabled {default}admin notices for bhop cheats until map changes!", TAG, client);
+				CPrintToChat(i, "%s %t", TAG, "Admin Notices Disabled By", client);
 			else
-				CPrintToChat(i, "%s {olive}Console {default}has {red}disabled {default}admin notices for bhop cheats until map changes!", TAG);
+				CPrintToChat(i, "%s %t", TAG, "Admin Notices Disabled By Console");
 		}
 	}
 	LogAction(-1, -1, "[TOGs Jump Stats] \"%L\" has disabled admin notices for bhop cheats until map changes.", client);
@@ -507,9 +508,9 @@ void EnableMsgs(any client)
 		if(IsClientInGame(i) && CheckCommandAccess(i, "sm_admin", ADMFLAG_GENERIC, true) && !IsFakeClient(i))
 		{
 			if(i > 0)
-				CPrintToChat(i, "%s {olive}%N {default}has {green}re-enabled {default}admin notices for bhop cheats!", TAG, client);
+				CPrintToChat(i, "%s %t", TAG, "Admin Notices Enabled By", client);
 			else
-				CPrintToChat(i, "%s {olive}Console {default}has {green}re-enabled {default}admin notices for bhop cheats!", TAG);
+				CPrintToChat(i, "%s %t", TAG, "Admin Notices Enabled By Console");
 		}
 	}
 	LogAction(-1, -1, "[TOGs Jump Stats] \"%L\" has re-enabled admin notices for bhop cheats.", client);
@@ -519,7 +520,7 @@ public Action Command_EnableAdminMsgs(int client, int iArgs)
 {
 	if(!HasFlags(client, g_sAdminFlag) && IsValidClient(client))
 	{
-		CReplyToCommand(client, "%s You do not have access to this command!", TAG);
+		CReplyToCommand(client, "%s %t", TAG, "No Access");
 		return Plugin_Handled;
 	}
 	
@@ -554,7 +555,7 @@ void NotifyAdmins(int client, char[] sFlagType)
 			{
 				if(IsValidClient(i) && HasFlags(i, g_sNotificationFlag))
 				{
-					CPrintToChat(i, "%s {olive}'%N' {default}has been {red}flagged for '%s'! {default}Please check their jump stats!", TAG, client, sFlagType);
+					CPrintToChat(i, "%s %t", TAG, "Flagged Notice", client, sFlagType);
 					PerformStats(i, client);
 				}
 			}
@@ -571,7 +572,7 @@ void NotifyAdmins(int client, char[] sFlagType)
 			{
 				if(IsValidClient(i) && HasFlags(i, g_sNotificationFlag))
 				{
-					CPrintToChat(i, "%s {olive}'%N' {default}has been {red}flagged for having fps_max set to %s! {default}Please enforce a minimum value of {green}%5.1f.", TAG, client, a_sTempArray[1], g_hFPSMaxMinValue.FloatValue);
+					CPrintToChat(i, "%s %t", TAG, "Flagged FPS Max Notice", client, a_sTempArray[1], g_hFPSMaxMinValue.FloatValue);
 					PerformStats(i, client);
 				}
 			}
@@ -828,14 +829,14 @@ public Action Command_Jumps(int client, int iArgs)
 	{
 		if(!HasFlags(client, g_sAdminFlag) && IsValidClient(client))
 		{
-			CReplyToCommand(client, "%s You do not have access to this command!", TAG);
+			CReplyToCommand(client, "%s %t", TAG, "No Access");
 			return Plugin_Handled;
 		}
 	}
 
 	if(iArgs != 1)
 	{
-		CReplyToCommand(client, "%s Usage: sm_jumps <#userid|name|@all>", TAG);
+		CReplyToCommand(client, "%s %t", TAG, "Jumps Usage");
 		return Plugin_Handled;
 	}
 	
@@ -848,12 +849,12 @@ public Action Command_Jumps(int client, int iArgs)
 
 	if((iTargetCount = ProcessTargetString(sArg, client, a_iTargets, MAXPLAYERS, COMMAND_FILTER_NO_IMMUNITY, sTargetName, sizeof(sTargetName), bTN_Is_ML)) <= 0)
 	{
-		CReplyToCommand(client, "%s Not found or invalid parameter.", TAG);
+		CReplyToCommand(client, "%s %t", TAG, "Jumps Target Not Found");
 		return Plugin_Handled;
 	}
 
 	if(IsValidClient(client))
-		CReplyToCommand(client, "%s Check console for output!", TAG);
+		CReplyToCommand(client, "%s %t", TAG, "See console for output");
 
 	SortedStats(client, a_iTargets, iTargetCount);
 	return Plugin_Handled;
@@ -865,14 +866,14 @@ public Action Command_ResetJumps(int client, int iArgs)
 	{
 		if(!HasFlags(client, g_sAdminFlag) && IsValidClient(client))
 		{
-			CReplyToCommand(client, "%s You do not have access to this command!", TAG);
+			CReplyToCommand(client, "%s %t", TAG, "No Access");
 			return Plugin_Handled;
 		}
 	}
 
 	if(iArgs != 1)
 	{
-		CReplyToCommand(client, "%s Usage: sm_resetjumps <#userid|name|@all>", TAG);
+		CReplyToCommand(client, "%s %t", TAG, "Reset Jumps Usage");
 		return Plugin_Handled;
 	}
 	
@@ -895,7 +896,7 @@ public Action Command_ResetJumps(int client, int iArgs)
 		ResetJumps(a_iTargets[i]);
 	}
 
-	CShowActivity2(client, "{green}[TOGs Jump Stats] {olive}", "{default}Reset Jumps stats on {olive}%s{default}.", sTargetName);
+	CShowActivity2(client, "{green}[TOGs Jump Stats] {olive}", "%t", "Reset Jumps Activity", sTargetName);
 
 	if (iTargetCount > 1)
 		LogAction(-1, -1, "[TOGs Jump Stats] \"%L\" reset jump stats for %s", client, sTargetName);
