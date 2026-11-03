@@ -19,7 +19,7 @@ public Plugin myinfo =
 	name = "TOGs Jump Stats",
 	author = "That One Guy (based on code from Inami)",
 	description = "Player bhop method analysis.",
-	version = "1.13.1", // Changelog at bottom
+	version = "1.13.2", // Changelog at bottom
 	url = "http://www.togcoding.com"
 }
 
@@ -491,7 +491,7 @@ void StopMsgs(any client)
 	{
 		if(IsClientInGame(i) && CheckCommandAccess(i, "sm_admin", ADMFLAG_GENERIC, true) && !IsFakeClient(i))
 		{
-			if(i > 0)
+			if(client > 0)
 				CPrintToChat(i, "%s %t", TAG, "Admin Notices Disabled By", client);
 			else
 				CPrintToChat(i, "%s %t", TAG, "Admin Notices Disabled By Console");
@@ -507,7 +507,7 @@ void EnableMsgs(any client)
 	{
 		if(IsClientInGame(i) && CheckCommandAccess(i, "sm_admin", ADMFLAG_GENERIC, true) && !IsFakeClient(i))
 		{
-			if(i > 0)
+			if(client > 0)
 				CPrintToChat(i, "%s %t", TAG, "Admin Notices Enabled By", client);
 			else
 				CPrintToChat(i, "%s %t", TAG, "Admin Notices Enabled By Console");
@@ -771,7 +771,7 @@ void LogFlag(int client, const char[] sType, bool bAlreadyFlagged = false)
 		{
 			if(g_hEnableLogs.BoolValue)
 			{
-				LogToFileEx(g_sHacksPath, sLogMsg);
+				LogToFileEx(g_sHacksPath, "%s", sLogMsg);
 			}
 			
 			if(g_hBanHacks.IntValue != -1)
@@ -783,7 +783,7 @@ void LogFlag(int client, const char[] sType, bool bAlreadyFlagged = false)
 		{
 			if(g_hEnableLogs.BoolValue)
 			{
-				LogToFileEx(g_sPatPath, sLogMsg);
+				LogToFileEx(g_sPatPath, "%s", sLogMsg);
 			}
 			
 			if(g_hBanPat.IntValue != -1)
@@ -795,7 +795,7 @@ void LogFlag(int client, const char[] sType, bool bAlreadyFlagged = false)
 		{
 			if(g_hEnableLogs.BoolValue)
 			{
-				LogToFileEx(g_sHypPath, sLogMsg);
+				LogToFileEx(g_sHypPath, "%s", sLogMsg);
 			}
 			
 			if(g_hBanHyp.IntValue != -1)
@@ -811,7 +811,7 @@ void LogFlag(int client, const char[] sType, bool bAlreadyFlagged = false)
 			
 			if(g_hEnableLogs.BoolValue)
 			{
-				LogToFileEx(g_sHacksPath, sLogMsg);
+				LogToFileEx(g_sHacksPath, "%s", sLogMsg);
 			}
 			
 			if(g_hBanFPSMax.IntValue != -1)
@@ -896,7 +896,10 @@ public Action Command_ResetJumps(int client, int iArgs)
 		ResetJumps(a_iTargets[i]);
 	}
 
-	CShowActivity2(client, "{green}[TOGs Jump Stats] {olive}", "%t", "Reset Jumps Activity", sTargetName);
+	if (bIsML)
+		CShowActivity2(client, "{green}[TOGs Jump Stats] {olive}", "%t", "Reset Jumps Activity", sTargetName);
+	else
+		CShowActivity2(client, "{green}[TOGs Jump Stats] {olive}", "%t", "Reset Jumps Activity", "_s", sTargetName);
 
 	if (iTargetCount > 1)
 		LogAction(-1, -1, "[TOGs Jump Stats] \"%L\" reset jump stats for %s", client, sTargetName);
@@ -963,14 +966,14 @@ void SortedStats(int client, int[] a_iTargets, int iCount)
 	{
 		for(int m = 0; m < iValidCount; m++)
 		{
-			PrintToConsole(client, a_sStats[m]);
+			PrintToConsole(client, "%s", a_sStats[m]);
 		}
 	}
 	else
 	{
 		for(int m = 0; m < iValidCount; m++)
 		{
-			PrintToServer(a_sStats[m]);
+			PrintToServer("%s", a_sStats[m]);
 		}
 	}
 	
