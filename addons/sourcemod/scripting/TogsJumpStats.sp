@@ -19,7 +19,7 @@ public Plugin myinfo =
 	name = "TOGs Jump Stats",
 	author = "That One Guy (based on code from Inami)",
 	description = "Player bhop method analysis.",
-	version = "1.13.2", // Changelog at bottom
+	version = "1.13.3", // Changelog at bottom
 	url = "http://www.togcoding.com"
 }
 
